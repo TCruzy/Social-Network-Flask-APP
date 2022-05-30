@@ -1,7 +1,8 @@
 # Social-Network-Flask-APP
 
 I created Simple Social network flask applikation with authorization (using also sessions from flask), where you can create post, add likes to the post and follow user. Also, you can log in as
-adminstrator and manage posts, like who likes this post and create post for any user, by user id and post content. 
+adminstrator and manage posts, like who likes this post and create post for any user, by user id and post content
+In conclusion, you also can see how many people follow x user from *'s profile. 
 
 
 ![image](https://user-images.githubusercontent.com/96307105/170985603-21185fa1-b4be-459a-a65c-b11abfa006e8.png)
