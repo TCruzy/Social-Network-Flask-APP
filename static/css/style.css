@@ -1,0 +1,155 @@
+.blog-post {
+  /* make this div container more prettier like blog post */
+    padding: 20px;
+    border-bottom: 2px solid #ececec;
+    margin-bottom: 20px;
+    border: 1px solid #0c6920;
+    border-radius: 50px;
+    background-color: #f2f2f2;
+
+
+}
+.blog-post-title {
+  /* make this title more pretty*/
+    color: #006699;
+    font-size: 40px;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center:
+    gap: 20px;
+}
+.blog-post-body {
+    /* make this body more pretty*/
+    font-size: 22px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+
+}
+
+.liked_by {
+  display: flex;
+  gap: 10px;
+}
+
+.main-header {
+  top: 0;
+  padding: 15px;
+  width: 100%;
+  background-color: rgba(35, 35, 35, 0.8);
+  z-index: 11; }
+  .main-header .container {
+    font-family: "Source Sans Pro Bold", sans-serif;
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    /* useless css */ }
+    .main-header .container h2 {
+      font-size: 16px;
+      color: white; }
+      @media (max-width: 810px) {
+        .main-header .container h2 {
+          font-size: 12px; } }
+    .main-header .container .main-navigation {
+      height: 0px;
+      transition: 1s height;
+      text-transform: uppercase;
+      display: flex;
+}
+      .main-header .container .main-navigation.active {
+        display: block;
+        width: 300vw;
+        height: auto;
+        text-align: right;
+        padding-top: 30px; }
+        .main-header .container .main-navigation.active li {
+          padding-bottom: 20px; }
+      .main-header .container .main-navigation li {
+        padding: 0 20px; }
+        .main-header .container .main-navigation li a {
+          font-size: 16px;
+          color: white;
+          -webkit-transition: 0.3s;
+          -moz-transition: 0.3s;
+          -o-transition: 0.3s;
+          transition: 0.3s; }
+          .main-header .container .main-navigation li a:hover {
+            color: #E64A19; }
+        @media (max-width: 1120px) {
+          .main-header .container .main-navigation li {
+            padding: 0 10px; } }
+      @media (max-width: 768px) {
+        .main-header .container .main-navigation {
+          display: none; } }
+    .main-header .container .burger-menu {
+      position: relative;
+      right: 0;
+      width: 20px;
+      height: 10px;
+      cursor: pointer;
+      display: none; }
+      @media (max-width: 768px) {
+        .main-header .container .burger-menu {
+          display: block; } }
+    .main-header .container .burger {
+      position: absolute;
+      background: white;
+      width: 100%;
+      height: 3px;
+      top: 50%;
+      right: 0px;
+      opacity: 1; }
+    .main-header .container .burger::before {
+      position: absolute;
+      background: white;
+      width: 100%;
+      height: 3px;
+      top: 5px;
+      content: "";
+      display: block; }
+    .main-header .container .burger::after {
+      position: absolute;
+      background: white;
+      width: 100%;
+      height: 3px;
+      bottom: 5px;
+      content: "";
+      display: block; }
+    .main-header .container .burger::after, .main-header .container .burger::before, .main-header .container .burger {
+      transition: all .3s ease-in-out;
+      -webkit-transition: all .3s ease-in-out; }
+    .main-header .container .burger-menu.menu-on .burger::after {
+      transform: rotate(-45deg);
+      -webkit-transform: rotate(-45deg);
+      bottom: 0px; }
+    .main-header .container .burger-menu.menu-on .burger::before {
+      transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+      top: 0px; }
+    .main-header .container .burger-menu.menu-on .burger {
+      background: rgba(111, 111, 111, 0);
+      width: 22px; }
+    .main-header .container h1 {
+      font-family: arial;
+      letter-spacing: 4px;
+      font-size: 16px;
+      text-transform: uppercase;
+      color: #666;
+      text-align: center;
+      margin: 60px 0px 60px 0px; }
+    .main-header .container .big {
+      letter-spacing: 0px;
+      font-size: 51px;
+      display: block;
+      text-transform: uppercase; }
+  @media (max-width: 768px) {
+    .main-header {
+      padding: 10px; } }
+
+      .containerr {
+        max-width: 400px;
+        width: 100%;
+        margin: 0 auto;
+        position: relative;
+      }

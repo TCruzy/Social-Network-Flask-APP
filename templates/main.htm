@@ -1,0 +1,36 @@
+
+    <header class="main-header">
+        <div class="container">
+            <h2>FLASK</h2>
+            <nav class="main-navigation">
+                <li><a href="/posts">Posts </a></li>
+                {% if session["username"] == "admin" %}
+                    <li><a href="/create-post">Create User Post</a></li>
+                {% elif 'username' in session %}
+                    <li><a href="/create-post">Create Post</a></li>
+                    <li><a href="/my-posts">My Posts</a></li>
+                {% else %}
+                    <li><a href="/register">Registration</a></li>
+                {% endif %}
+                <li><a href="#stories">stories</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </nav>
+            <div class="burger-menu">
+                <div class="burger"></div>  
+            </div>
+        </div>
+    </header>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script>
+    $(".burger-menu").click(function () {
+        $(this).toggleClass("menu-on");
+        $(".main-navigation").toggleClass("active")
+    });
+    $(".main-navigation li a").click(function () {
+        $(".main-navigation").removeClass("active");
+        $(".burger-menu").removeClass("menu-on")
+    });
+    </script>
+{% block content %}
+{% endblock %}
+
