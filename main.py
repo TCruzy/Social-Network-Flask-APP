@@ -389,6 +389,7 @@ def users():
             likes_amount = 0
         users.append({'name': users_ex[for_name][0], 'posts': posts_amount, 'followers': followers_amount, 'liked': liked_amount, 'likes': likes_amount})
         
+        
     return render_template('users.htm', users=users)
 
 
