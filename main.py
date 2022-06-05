@@ -392,6 +392,7 @@ def users():
     return render_template('users.htm', users=users)
 
 
+
 # @app.route('/comment-post', methods=['POST'])
 # def comment_post():
 #     comment_content = request.args.get('comment_content')
