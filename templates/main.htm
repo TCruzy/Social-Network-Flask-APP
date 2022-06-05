@@ -6,13 +6,13 @@
                 <li><a href="/posts">Posts </a></li>
                 {% if session["username"] == "admin" %}
                     <li><a href="/create-post">Create User Post</a></li>
+                    <li><a href="/users">Users</a></li>
                 {% elif 'username' in session %}
                     <li><a href="/create-post">Create Post</a></li>
                     <li><a href="/my-posts">My Posts</a></li>
                 {% else %}
                     <li><a href="/register">Registration</a></li>
                 {% endif %}
-                <li><a href="#stories">stories</a></li>
                 <li><a href="#contact">Contact</a></li>
             </nav>
             <div class="burger-menu">

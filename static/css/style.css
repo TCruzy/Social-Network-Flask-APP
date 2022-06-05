@@ -9,6 +9,9 @@
 
 
 }
+li {
+  list-style-type: none;
+}
 .blog-post-title {
   /* make this title more pretty*/
     color: #006699;

@@ -1,3 +1,4 @@
+from turtle import pos
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_cors import CORS
 import sqlite3
@@ -8,7 +9,6 @@ c = conn.cursor()
 
 c.execute("""CREATE TABLE IF NOT EXISTS user (Username TEXT, Userid INTEGER PRIMARY KEY, password TEXT)""")
 conn.commit()
-
 
 c.execute("""CREATE TABLE IF NOT EXISTS posts 
             (postid INTEGER PRIMARY KEY, 
@@ -54,9 +54,13 @@ def admin_posts():
     if request.method == 'POST':
         post_content = request.form['post_content']
         userid = request.form['userid']
-        c.execute("INSERT INTO posts (post, userid) VALUES (?, ?)", (post_content, userid))
-        conn.commit()
-        return redirect(url_for('posts'))
+        c.execute("select * from user where Userid = ?", (userid,))
+        if userid.isdigit() and c.fetchone() is not None:
+            c.execute("INSERT INTO posts (post, userid) VALUES (?, ?)", (post_content, userid))
+            conn.commit()
+            return redirect(url_for('posts'))
+        else:
+            return redirect(url_for('create_post'))
     else:
         if "username" not in session.keys():
             return redirect(url_for('login'))
@@ -80,6 +84,15 @@ def admin_posts():
         # for row in c:
         #     posts.append({'postid': row[0], 'post': row[1], 'userid': row[2], 'post_date': row[3]})
         # return {"all-post": posts}
+
+@app.route('/')
+def home():
+    if "username" not in session.keys():
+        return redirect(url_for('login'))
+    elif session["username"] == "admin":
+        return redirect(url_for('admin_posts'))
+    else:
+        return redirect(url_for('posts'))
 
 
 @app.route('/posts', methods=['GET', 'POST'])
@@ -141,6 +154,10 @@ def posts():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
+        if 'admin' in session.values():
+            return redirect(url_for('admin_posts'))
+        elif 'username' in session.keys():
+            return redirect(url_for('posts'))
         return render_template('login.htm')
     if request.method == 'POST':
         username = request.form['username']
@@ -269,12 +286,12 @@ def posts_name(name):
         # print("shemovida")
         user = session['username']
         followers = 0
-        c.execute("select userid from followers where following_id = ?", (userid,))
+        c.execute("select following_id from followers where userid = ?", (userid,))
         for row in c.fetchall():
             followers += 1
         return render_template('userposts.htm', posts=posts, user=user, followers=followers)
     followers = 0
-    c.execute("select userid from followers where following_id = ?", (userid,))
+    c.execute("select following_id from followers where userid = ?", (userid,))
     for row in c.fetchall():
         followers += 1
     return render_template('userposts.htm', posts=posts, user=session['username'], followers=followers)
@@ -331,11 +348,49 @@ def my_posts():
         c.execute("SELECT username FROM user WHERE Userid = ?", (row[2],))
         posts.append({'postid': row[0],'liked_me': liked_me, 'liked_by': liked_by, 'post': row[1], 'userid': row[2], 'post_date': row[3], 'username': c.fetchone()[0]}) 
     followers = 0
-    c.execute("select userid from followers where following_id = ?", (userid,))
+    c.execute("select following_id from followers where userid = ?", (userid,))
     for row in c.fetchall():
         followers += 1
     return render_template('userposts.htm', posts=posts, user=session['username'], followers=followers)
         
+
+@app.route('/users')
+def users():
+    if "username" not in session.keys():
+        return redirect(url_for('login'))
+    elif "admin" not in session.values():
+        return redirect(url_for('posts'))
+    users = []
+    for_name = -1
+    c.execute("SELECT username, userid FROM user")
+    users_ex = c.fetchall()
+    for row in users_ex:
+        for_name += 1
+        c.execute("select postid from posts where userid = ?", (row[1],))
+        posts_amount = len(c.fetchall())
+        if posts_amount is None:
+            posts_amount = 0
+        c.execute("select following_id from followers where userid = ?", (row[1],))
+        followers_amount = len(c.fetchall())
+        if followers_amount is None:
+            followers_amount = 0
+        c.execute("select postid from likes where userid = ?", (row[1],))
+        liked_amount = len(c.fetchall())
+        if liked_amount is None:
+            liked_amount = 0
+        c.execute("select postid from posts where userid = ?", (row[1],))
+        postidd = c.fetchall()
+        likes_amount = 0
+        if postidd is not None:
+            for row in postidd:
+                c.execute("select userid from likes where postid = ?" , (row[0],))
+                likes_amount += len(c.fetchall())
+        else:
+            likes_amount = 0
+        users.append({'name': users_ex[for_name][0], 'posts': posts_amount, 'followers': followers_amount, 'liked': liked_amount, 'likes': likes_amount})
+        
+    return render_template('users.htm', users=users)
+
 
 # @app.route('/comment-post', methods=['POST'])
 # def comment_post():
