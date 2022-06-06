@@ -12,7 +12,11 @@
                     <li><a href="/create-post">Create Post</a></li>
                     <li><a href="/my-posts">My Posts</a></li>
                 {% else %}
-                    <li><a href="/register">Registration</a></li>
+                    {% if sign_up %}
+                        <li><a href="/login">Login</a></li>
+                    {% else %}
+                        <li><a href="/register">Registration</a></li>
+                    {% endif %}
                 {% endif %}
                 <li><a href="#contact">Contact</a></li>
             </nav>

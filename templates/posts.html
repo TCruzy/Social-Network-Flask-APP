@@ -9,9 +9,8 @@
     <title>Document</title>
 </head>
 <body>
-    {% extends 'main.htm' %}
+    {% extends 'main.html' %}
     {% block content %}
-    <p style="text-align: center; font-size: 20px; color:blue; font-weight: bold;">Followers : {{followers}}</p>
     <!-- make simple div container as blog post -->
     {% if posts %}
     {% for i in range(posts |length) %}
@@ -21,6 +20,25 @@
             <div class="blog-post-title">
                 <!-- make a h1 tag for the title -->
                 <a href="/posts/{{posts[i]['username']|lower}}">{{posts[i]["username"]|upper}}</a>
+                <!-- check {{ posts[i]['already_friend']  }} -->
+                {% if session["username"] != "admin" %}
+                    {% if posts[i]['username']|lower != session["username"]|lower %}
+                        <form action="/add-friend" method="post">
+                            {% if posts[i]['already_friend'] == 0 %}
+                            <input type="hidden" name="checkuserid" value="{{posts[i]['userid']}}">
+                            <input type="hidden" name="add" value= "+" />
+                            <button type="submit" class="btn btn-primary" style="width: 20px;height: 20px;display:flex;justify-content: center;align-items: center; border-radius: 50%;">+</button>
+                            <p style="margin-left: 30px; font-size: 15px;">Follow</p>
+                            {% else %}
+                            <input type="hidden" name="checkuserid" value="{{posts[i]['userid']}}">
+                            <input type="hidden" name="add" value= "-" />
+                            <button type="submit" class="btn btn-primary" style="width: 20px;height: 20px;display:flex;justify-content: center;align-items: center; border-radius: 50%;">-</button>
+                            <p style="margin-left: 30px; font-size: 15px;">Unfollow</p>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                {% endif %}
+            
             </div>
             <div><p>post date : {{ posts[i]['post_date']}}</p></div>
             <!-- make a div container for the body -->
@@ -38,8 +56,7 @@
                     </div>
                 </div>
             {% endif %}
-            <form action="/posts/{{posts[i]['username']|lower}}" method="post">
-                <input type = "hidden" name = "usera" value = {{ posts[i]['username'] }} />
+            <form action="/like-post" method="post">
                 <input type = "hidden" name = "postid" value = {{ posts[i]['postid'] }} />
                 <div class="form-row align-items-center">
                 {% if user == "admin" %}
@@ -65,10 +82,10 @@
         
     {% endfor %}
     {% else %}
-        <p style="text-align: center; font-size: 20px;">No posts yet</p>
+        <p>No posts yet</p>
     {% endif %}
     <form action="/logout">
-        <fieldset style="margin-top: 40px; margin-bottom: 20px;" class="d-flex justify-content-center">
+        <fieldset style="margin-top: 40px; margin-bottom: 15px;" class="d-flex justify-content-center">
             <button name="submit" type="submit" class="btn btn-danger">Log Out</button>
         </fieldset>
     </form>

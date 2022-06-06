@@ -1,6 +1,4 @@
-from turtle import pos
-from flask import Flask, render_template, request, redirect, url_for, session
-from flask_cors import CORS
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 
 
@@ -10,6 +8,7 @@ c = conn.cursor()
 c.execute("""CREATE TABLE IF NOT EXISTS user (Username TEXT, Userid INTEGER PRIMARY KEY, password TEXT)""")
 conn.commit()
 
+
 c.execute("""CREATE TABLE IF NOT EXISTS posts 
             (postid INTEGER PRIMARY KEY, 
             post TEXT,
@@ -18,6 +17,8 @@ c.execute("""CREATE TABLE IF NOT EXISTS posts
             FOREIGN KEY(userid) REFERENCES user(Userid))
             """)
 conn.commit()
+
+
 c.execute("""CREATE TABLE IF NOT EXISTS comments 
             (commentid INTEGER PRIMARY KEY, 
             comment TEXT, postid INTEGER, 
@@ -36,7 +37,6 @@ conn.commit()
 
 
 app = Flask(__name__)
-CORS(app)
 
 app.secret_key = 'santossantos123'
 
@@ -45,9 +45,9 @@ def create_post():
     if "username" not in session.keys():
         return redirect(url_for('login'))
     if session["username"] == "admin":
-        return render_template('cpost.htm')
+        return render_template('cpost.html')
     else:
-        return render_template('cuserpost.htm')
+        return render_template('cuserpost.html')
 
 @app.route('/admin_posts', methods=['GET', 'POST'])
 def admin_posts():
@@ -65,7 +65,7 @@ def admin_posts():
         if "username" not in session.keys():
             return redirect(url_for('login'))
         posts = []
-        c.execute("SELECT * FROM posts")
+        c.execute("SELECT * FROM posts order by post_date desc")
         for row in c.fetchall():
             liked_by = []
             c.execute("SELECT userid FROM likes WHERE postid = ?", (row[0],))
@@ -78,7 +78,7 @@ def admin_posts():
             c.execute("SELECT username FROM user WHERE Userid = ?", (row[2],))
             posts.append({'postid': row[0], 'liked_by': liked_by, 'post': row[1], 'userid': row[2], 'post_date': row[3], 'username': c.fetchone()[0]})
         user = session['username']
-        return render_template('posts.htm', posts=posts, user=user)
+        return render_template('posts.html', posts=posts, user=user)
         # posts = []
         # c.execute("SELECT * FROM posts order by post_date desc")
         # for row in c:
@@ -111,14 +111,14 @@ def posts():
         posts = []
         for_friends = {"posted_by": None, "logged_in_user": None}
         if "admin" not in session.values():
-            c.execute("SELECT * FROM posts")
+            c.execute("SELECT * FROM posts order by post_date desc")
             for row in c.fetchall():
                 already_friend = 0  
                 for_friends["posted_by"] = row[2]
                 c.execute("select userid from user where username = ?", (session['username'],))
                 for_friends["logged_in_user"] = c.fetchone()[0]
                 try:
-                    c.execute("select following_id from followers where userid = ?", (for_friends['logged_in_user'],))
+                    c.execute("select userid from followers where following_id = ?", (for_friends['logged_in_user'],))
                     friend = c.fetchall()
                     for friends in friend:
                         if friends[0] == for_friends["posted_by"]:
@@ -143,9 +143,9 @@ def posts():
                 posts.append({'postid': row[0],'liked_me': liked_me, 'liked_by': liked_by, 'post': row[1], 'userid': row[2], 'post_date': row[3], 'username': c.fetchone()[0],'already_friend': already_friend}) 
             if "admin" not in session.values():
                 user = session['username']
-                return render_template('posts.htm', posts=posts, user=user)
+                return render_template('posts.html', posts=posts, user=user)
             
-            return render_template('posts.htm', posts=posts, user=session['username'])
+            return render_template('posts.html', posts=posts, user=session['username'])
         else:
             return redirect(url_for('admin_posts'))
 
@@ -158,7 +158,7 @@ def login():
             return redirect(url_for('admin_posts'))
         elif 'username' in session.keys():
             return redirect(url_for('posts'))
-        return render_template('login.htm')
+        return render_template('login.html')
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -172,7 +172,8 @@ def login():
             # print(username,"/login post")
             return redirect(url_for('posts'))
         except:
-            return render_template('login.htm')
+            flash("Invalid username or password", "error")
+            return render_template('login.html',)
         
         
      
@@ -186,11 +187,20 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'GET':
-        return render_template('register.htm')
+        if 'admin' in session.values():
+            return redirect(url_for('admin_posts'))
+        elif 'username' in session.keys():
+            return redirect(url_for('posts'))
+        sign_up = True
+        return render_template('register.html', sign_up=sign_up)
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        c.execute("INSERT INTO user (Username, password) VALUES (?, ?)", (username, password))
+        c.execute("SELECT username FROM user WHERE Username = ?", (username,))
+        if c.fetchone() is not None:
+            flash("Username already existsss", 'error')
+            return render_template('register.html', sign_up=True)
+        c.execute("INSERT INTO user (Username, password) VALUES (?, ?)", (username.lower(), password))
         conn.commit()
         return redirect(url_for('login')) 
 
@@ -264,7 +274,7 @@ def posts_name(name):
     if "username" not in session.keys():
         return redirect(url_for('login'))
     posts = []
-    c.execute("SELECT userid FROM user WHERE username = ?", (name,))
+    c.execute("SELECT userid FROM user WHERE username = ?", (name.lower(),))
     userid = c.fetchone()[0]
     c.execute("SELECT * FROM posts where userid = ?", (userid,))
     for row in c.fetchall():
@@ -289,12 +299,12 @@ def posts_name(name):
         c.execute("select following_id from followers where userid = ?", (userid,))
         for row in c.fetchall():
             followers += 1
-        return render_template('userposts.htm', posts=posts, user=user, followers=followers)
+        return render_template('userposts.html', posts=posts, user=user, followers=followers)
     followers = 0
     c.execute("select following_id from followers where userid = ?", (userid,))
     for row in c.fetchall():
         followers += 1
-    return render_template('userposts.htm', posts=posts, user=session['username'], followers=followers)
+    return render_template('userposts.html', posts=posts, user=session['username'], followers=followers)
 
 
         
@@ -307,7 +317,7 @@ def add_friend():
     if add == "+":
         print("++")
         luserid = for_friends['logged_in_user']
-        c.execute("insert into followers (userid, following_id) values (?, ?)", (luserid, checkuserid))
+        c.execute("insert into followers (userid, following_id) values (?, ?)", (checkuserid,luserid))
         conn.commit()
         for_friends['posted_by'] = None
         for_friends['logged_in_user'] = None
@@ -316,7 +326,7 @@ def add_friend():
         print("--")
  
         luserid = for_friends['logged_in_user'] 
-        c.execute("DELETE from followers WHERE userid = ? AND following_id = ?", (luserid, checkuserid))
+        c.execute("DELETE from followers WHERE userid = ? AND following_id = ?", (checkuserid, luserid))
         conn.commit()
         for_friends['posted_by'] = None
         for_friends['logged_in_user'] = None
@@ -351,7 +361,7 @@ def my_posts():
     c.execute("select following_id from followers where userid = ?", (userid,))
     for row in c.fetchall():
         followers += 1
-    return render_template('userposts.htm', posts=posts, user=session['username'], followers=followers)
+    return render_template('userposts.html', posts=posts, user=session['username'], followers=followers)
         
 
 @app.route('/users')
@@ -390,7 +400,7 @@ def users():
         users.append({'name': users_ex[for_name][0], 'posts': posts_amount, 'followers': followers_amount, 'liked': liked_amount, 'likes': likes_amount})
         
         
-    return render_template('users.htm', users=users)
+    return render_template('users.html', users=users)
 
 
 
