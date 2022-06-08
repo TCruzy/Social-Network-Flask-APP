@@ -1,4 +1,7 @@
 # Social-Network-Flask-APP
+Deployment on PythonAnywhere.com
+Link : [cruzy.pythonanywhere.com](http://cruzy.pythonanywhere.com)
+
 
 I created Simple Social network flask applikation with authorization (using also sessions from flask), where you can create post, add likes to the post and follow user. Also, you can log in as
 adminstrator and manage posts, like who likes this post and create post for any user, by user id and post content
